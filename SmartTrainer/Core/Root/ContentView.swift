@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  DiplomaFitnessAppIOS
+//  SmartTrainerIOS
 //
 //  Created by Anton Shcherbakov on 22.09.2024.
 //
@@ -13,7 +13,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if viewModel.userSession != nil {
-                ProfileView()
+                MainTabView()
             } else {
                 LoginView()
             }

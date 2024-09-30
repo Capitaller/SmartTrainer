@@ -1,6 +1,6 @@
 //
 //  UserTypeEnum.swift
-//  MastersDiplomaFitnessApp
+//  SmartTrainer
 //
 //  Created by Anton Shcherbakov on 28.09.2024.
 //

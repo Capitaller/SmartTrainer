@@ -1,6 +1,6 @@
 //
-//  MastersDiplomaFitnessAppApp.swift
-//  MastersDiplomaFitnessApp
+//  SmartTrainerApp.swift
+//  SmartTrainer
 //
 //  Created by Anton Shcherbakov on 20.09.2024.
 //

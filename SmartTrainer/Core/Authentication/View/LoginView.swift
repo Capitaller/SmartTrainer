@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  DiplomaFitnessAppIOS
+//  SmartTrainerIOS
 //
 //  Created by Anton Shcherbakov on 22.09.2024.
 //

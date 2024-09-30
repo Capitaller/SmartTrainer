@@ -1,6 +1,6 @@
 //
 //  Untitled.swift
-//  DiplomaFitnessApp
+//  SmartTrainer
 //
 //  Created by Anton Shcherbakov on 24.09.2024.
 //
