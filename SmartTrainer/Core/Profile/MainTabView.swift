@@ -21,7 +21,9 @@ struct MainTabView: View {
                             Image(systemName: "person.crop.badge.magnifyingglass")
                             Text("Approvals")
                         }
-                        .tag(0)
+                        .tag(1)
+                    
+                    
                 }
                 
                 // Show "Workouts" tab if the user is an athlete
@@ -31,14 +33,15 @@ struct MainTabView: View {
                             Image(systemName: "figure.run.circle")
                             Text("Workouts")
                         }
+                        .tag(1)
+                    MainView()
+                        .tabItem {
+                            Image(systemName: "house.fill")
+                            Text("Home")
+                        }
                         .tag(0)
                 }
-                MainView()
-                    .tabItem {
-                        Image(systemName: "house.fill")
-                        Text("Home")
-                    }
-                    .tag(2)
+                
                 
                 ProfileView()
                     .tabItem {
