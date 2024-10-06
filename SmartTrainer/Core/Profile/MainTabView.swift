@@ -16,12 +16,12 @@ struct MainTabView: View {
             TabView(selection: $selectedTab) {
                 
                 if user.type == .trainer {
-                    Text("Approvals")
+                    TrainerAthletesView()
                         .tabItem {
                             Image(systemName: "person.crop.badge.magnifyingglass")
-                            Text("Approvals")
+                            Text("Athletes")
                         }
-                        .tag(1)
+                        .tag(0)
                     
                     
                 }

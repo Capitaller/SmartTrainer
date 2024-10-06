@@ -20,6 +20,7 @@ class AuthViewModel: ObservableObject {
     // determines login screen or home screen
     @Published var userSession: FirebaseAuth.User?
     @Published var currentUser: User?
+    @Published var athletes: [User] = []
     
     init() {
         self.userSession = Auth.auth().currentUser
@@ -42,13 +43,13 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    func createUser(withEmail email: String, password: String, fullname: String, userType: UserType) async throws {
+    func createUser(withEmail email: String, password: String, fullname: String, userType: UserType, trainerID: String) async throws {
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             DispatchQueue.main.async {
                 self.userSession = result.user
             }
-            let user = User(id: result.user.uid, fullname: fullname, email: email, type: userType)
+            let user = User(id: result.user.uid, fullname: fullname, email: email, type: userType, trainerid: trainerID)
             let encodedUser = try Firestore.Encoder().encode(user)
             try await Firestore.firestore().collection("users").document(user.id).setData(encodedUser)
             await fetchUser()
@@ -56,6 +57,38 @@ class AuthViewModel: ObservableObject {
             print("DEBUG: failed to create user with error: \(error.localizedDescription)")
         }
     }
+    
+    func updateTrainerID(newTrainerID: String) async throws {
+        guard let uid = currentUser?.id else { return }  // Use `id` instead of `uid`
+        
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        try await userRef.updateData(["trainerid": newTrainerID])
+        
+        // Update the local user object after successful Firebase update
+        DispatchQueue.main.async {
+            self.currentUser?.trainerid = newTrainerID
+        }
+    }
+    func fetchAthletes() async {
+            guard let trainerID = currentUser?.id else { return }  // Ensure current user is a trainer
+            
+            let query = Firestore.firestore().collection("users")
+                .whereField("trainerid", isEqualTo: trainerID)
+                .whereField("type", isEqualTo: UserType.athlete.rawValue)  // Ensure you fetch only athletes
+
+            do {
+                let snapshot = try await query.getDocuments()
+                let fetchedAthletes = snapshot.documents.compactMap { try? $0.data(as: User.self) }
+                
+                // Ensure UI updates on the main thread
+                DispatchQueue.main.async {
+                    self.athletes = fetchedAthletes
+                }
+            } catch {
+                print("Error fetching athletes: \(error.localizedDescription)")
+            }
+        }
+    
     
     func signOut() {
         do {

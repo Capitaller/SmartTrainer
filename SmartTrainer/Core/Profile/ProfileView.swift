@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var viewModel: AuthViewModel
+    @State private var trainerID = ""  // State variable to hold the editable Trainer ID
+    @State private var isEditingTrainerID = false  // Track whether we are editing the Trainer ID
+    
     var body: some View {
         if let user = viewModel.currentUser {
             List {
@@ -34,7 +37,7 @@ struct ProfileView: View {
                         }
                     }
                 }
-    
+                
                 Section("General") {
                     HStack{
                         SettingsRowView(imageName: "figure.strengthtraining.functional.circle", title: "Account Type", tintColor: Color(.systemGray))
@@ -55,6 +58,47 @@ struct ProfileView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                
+                // Editable Trainer ID Section
+                if user.type == .athlete {
+                    Section("Trainer") {
+                        HStack {
+                            SettingsRowView(imageName: "list.bullet.clipboard", title: "Trainer Id", tintColor: Color(.systemGray))
+                            
+                            Spacer()
+                            
+                            if isEditingTrainerID {
+                                TextField("Enter Trainer ID", text: $trainerID)
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .frame(maxWidth: 150)  // Adjust the width if needed
+                            } else {
+                                Text(user.trainerid ?? "")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        
+                        // Toggle Edit/Save button
+                        Button {
+                            if isEditingTrainerID {
+                                // Save the Trainer ID to Firebase
+                                Task {
+                                    try await viewModel.updateTrainerID(newTrainerID: trainerID)
+                                }
+                            } else {
+                                // Set the current Trainer ID in the text field when editing starts
+                                trainerID = user.trainerid ?? ""
+                            }
+                            isEditingTrainerID.toggle()  // Toggle between edit and view mode
+                        } label: {
+                            Text(isEditingTrainerID ? "Save" : "Edit Trainer ID")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
+            
                 
                 Section("Account") {
                     Button {

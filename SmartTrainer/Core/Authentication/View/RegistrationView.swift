@@ -13,6 +13,7 @@ struct RegistrationView: View {
     @State private var selectedUserType: UserType = .athlete  // Track the selected user type
     @State private var password = ""
     @State private var confirmPassword = ""
+    @State private var trainerID = ""  // Trainer ID for athletes
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: AuthViewModel
     
@@ -22,11 +23,11 @@ struct RegistrationView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 130, height:150)
-                .offset(y: -30)
-                .padding(.vertical, 32)
+//                .offset(y: -3)
+//                .padding(.vertical, 3)
             
             // form fields
-            VStack(spacing: 24){
+            VStack(spacing: 15){
                 InputView(text: $email,
                           title: "Email Address",
                           placeholder: "name@exmaple.com")
@@ -65,6 +66,12 @@ struct RegistrationView: View {
                                        }
                                    }
                                }
+                // Show Trainer ID field for Athlete
+                                if selectedUserType == .athlete {
+                                    InputView(text: $trainerID,
+                                              title: "Trainer ID",
+                                              placeholder: "Enter Trainer ID")
+                                }
                     
                 InputView(text: $password,
                           title: "Password",
@@ -97,7 +104,7 @@ struct RegistrationView: View {
             // register button
             Button {
                 Task {
-                    try await viewModel.createUser(withEmail: email, password: password, fullname: fullname, userType: selectedUserType)
+                    try await viewModel.createUser(withEmail: email, password: password, fullname: fullname, userType: selectedUserType, trainerID: trainerID)
                 }
             } label: {
                 HStack{
