@@ -10,10 +10,11 @@ import SwiftUI
 struct MainView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @State private var selectedIntensity: IntensityLevel = .medium
-    @State private var selectedWorkoutType: WorkoutType = .run // Add a state variable for the workout type
+    @State private var selectedWorkoutType: WorkoutType = .run
     @State private var workoutDistance: Double = 5.0
     @State private var workoutCalories: Int = 300
     @State private var verticalOffset: CGFloat = 0 // State variable for vertical offset
+    @State private var showText: Bool = true // New state variable to control text visibility
 
     var body: some View {
         ZStack {
@@ -22,113 +23,108 @@ struct MainView: View {
             VStack {
                 
                 Spacer() // This Spacer centers the content vertically
-                Text("Workout Settings")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color(.darkGray))
-                    .padding(20)
                 
-                
-                // Workout Type Selection
-                VStack{
-                    Text("Workout Type")
+                // Conditionally show the text based on the state variable
+                if showText {
+                    Text("Workout Settings")
+                        .font(.system(size: 40))
+                        .foregroundColor(Color(.darkGray))
+                        .padding(10)
+                    
+                    Text("Select workout type, intensity and distance")
                         .font(.system(size: 16))
                         .foregroundColor(Color(.darkGray))
-                    HStack {
-                        Button(action: {
-                            selectedWorkoutType = .bike
-                        }) {
-                            Text("Bike")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedWorkoutType == .bike ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedWorkoutType == .bike ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button(action: {
-                            selectedWorkoutType = .run
-                        }) {
-                            Text("Run")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedWorkoutType == .run ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedWorkoutType == .run ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button(action: {
-                            selectedWorkoutType = .walk
-                        }) {
-                            Text("Walk")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedWorkoutType == .walk ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedWorkoutType == .walk ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
+                        .padding(10)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
+
+                // Workout Type Selection
+                HStack {
+                    Button(action: {
+                        selectedWorkoutType = .bike
+                    }) {
+                        Text("Bike")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedWorkoutType == .bike ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedWorkoutType == .bike ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
+                    }
+
+                    Button(action: {
+                        selectedWorkoutType = .run
+                    }) {
+                        Text("Run")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedWorkoutType == .run ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedWorkoutType == .run ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
+                    }
+
+                    Button(action: {
+                        selectedWorkoutType = .walk
+                    }) {
+                        Text("Walk")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedWorkoutType == .walk ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedWorkoutType == .walk ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
                     }
                 }
                 .padding(.horizontal, 40)
 
                 Spacer().frame(height: 30)
+
                 // Workout Intensity Selection
-                VStack{
-                    Text("Intensity")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color(.darkGray))
-                    HStack {
-                        Button(action: {
-                            selectedIntensity = .low
-                        }) {
-                            Text("Low")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedIntensity == .low ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedIntensity == .low ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button(action: {
-                            selectedIntensity = .medium
-                        }) {
-                            Text("Medium")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedIntensity == .medium ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedIntensity == .medium ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button(action: {
-                            selectedIntensity = .high
-                        }) {
-                            Text("High")
-                                .fontWeight(.semibold)
-                                .foregroundColor(selectedIntensity == .high ? .white : .gray)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(selectedIntensity == .high ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
+                HStack {
+                    Button(action: {
+                        selectedIntensity = .low
+                    }) {
+                        Text("Low")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedIntensity == .low ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedIntensity == .low ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
                     }
-//                    Text("Workout Intensity")
-//                        .font(.system(size: 16))
-//                        .foregroundColor(Color(.darkGray))
+
+                    Button(action: {
+                        selectedIntensity = .medium
+                    }) {
+                        Text("Medium")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedIntensity == .medium ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedIntensity == .medium ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
+                    }
+
+                    Button(action: {
+                        selectedIntensity = .high
+                    }) {
+                        Text("High")
+                            .fontWeight(.semibold)
+                            .foregroundColor(selectedIntensity == .high ? .white : .gray)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(selectedIntensity == .high ? Color.blue : Color(.systemGray6))
+                            .cornerRadius(10)
+                    }
                 }
                 .padding(.horizontal, 40)
 
-                Spacer().frame(height: 20)
+                Spacer().frame(height: 30)
 
                 // Workout Distance Control
                 VStack {
-                    Text("Distance")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color(.darkGray))
                     HStack(spacing: 10) {
                         Button(action: {
                             if workoutDistance > 1 {
@@ -167,6 +163,7 @@ struct MainView: View {
                 Button(action: {
                     withAnimation {
                         verticalOffset = -UIScreen.main.bounds.height / 4 + 10 // Move the view up to a desired position
+                        showText = false // Hide the texts when the button is pressed
                     }
                 }) {
                     Text("Suggest workout")
