@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainView: View {
     @EnvironmentObject var viewModel: AuthViewModel
+    @StateObject var healthViewModel = HealthViewModel() // Health ViewModel
     @State private var selectedIntensity: IntensityLevel = .medium
     @State private var selectedWorkoutType: WorkoutType = .run
     @State private var workoutDistance: Double = 5.0
@@ -161,25 +162,32 @@ struct MainView: View {
 
                 // Suggest workout button
                 Button(action: {
-                    withAnimation {
-                        verticalOffset = -UIScreen.main.bounds.height / 4 + 10 // Move the view up to a desired position
-                        showText = false // Hide the texts when the button is pressed
-                    }
-                }) {
-                    Text("Suggest workout")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal, 40)
-
-                Spacer()
+                                    healthViewModel.requestHealthKitAuthorization() // Request HealthKit data
+                                    
+                                    withAnimation {
+                                        verticalOffset = -UIScreen.main.bounds.height / 4 + 10
+                                        showText = false
+                                    }
+                                }) {
+                                    Text("Suggest workout")
+                                        .font(.title2)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.blue)
+                                        .cornerRadius(10)
+                                }
+                                .padding(.horizontal, 40)
+                                
+                                Spacer()
+                            }
+                            .offset(y: verticalOffset)
+                            .animation(.easeInOut, value: verticalOffset)
+                        }
+        .onAppear {
+            if let json = healthViewModel.createHealthDataJSON() {
+                print("Generated JSON: \(json)")
             }
-            .offset(y: verticalOffset) // Apply vertical offset to the VStack
-            .animation(.easeInOut, value: verticalOffset) // Animation for smooth transition
         }
     }
 }
