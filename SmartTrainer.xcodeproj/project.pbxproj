@@ -376,6 +376,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SmartTrainer/Info.plist;
+				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Uses your health data";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Shares your health data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -409,6 +411,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SmartTrainer/Info.plist;
+				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Uses your health data";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Shares your health data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,7 +447,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SmartTrainer-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SmartTrainerWatchApp;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in SmartTrainer.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Uses Your Health Data";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by SmartTrainer on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = WristGames.SmartTrainer;
@@ -480,7 +484,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SmartTrainer-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SmartTrainerWatchApp;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in SmartTrainer.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Uses Your Health Data";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by SmartTrainer on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = WristGames.SmartTrainer;
