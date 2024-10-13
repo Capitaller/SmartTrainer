@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import HealthKit 
 
 enum WorkoutType: String, Codable, CaseIterable {
     case bike = "Bike"
@@ -22,4 +23,14 @@ enum WorkoutType: String, Codable, CaseIterable {
             return "Walk"
         }
     }
+    var hkWorkoutActivityType: HKWorkoutActivityType {
+            switch self {
+            case .bike:
+                return .cycling
+            case .run:
+                return .running
+            case .walk:
+                return .walking
+            }
+        }
 }
