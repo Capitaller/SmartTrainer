@@ -22,7 +22,7 @@ class HealthViewModel: ObservableObject {
     private var healthStore = HKHealthStore()
     
     // MARK: - Request HealthKit Authorization
-    func requestHealthKitAuthorization(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
+    func requestHealthKitAuthorization() {
         // Ensure HealthKit is available on this device
         guard HKHealthStore.isHealthDataAvailable() else {
             print("Health data is not available on this device.")
@@ -39,36 +39,7 @@ class HealthViewModel: ObservableObject {
         healthStore.requestAuthorization(toShare: nil, read: typesToRead) { success, error in
             if success {
                 print("HealthKit authorization successful.")
-                self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
-                self.fetchAge() // Fetch age after authorization
-                guard let averageSpeedMS = self.avgspeed else {
-                        print("Average Speed is not available.")
-                        return
-                    }
-
-                    guard let age = self.age else {
-                        print("Age is not available.")
-                        return
-                    }
-
-                    guard let weight = self.weight else {
-                        print("Weight is not available.")
-                        return
-                    }
-                // Now that we have the data, we can format it into the JSON string
-                let jsonString = self.generateUserJSON(
-                        workoutType: workoutType.rawValue,
-                        intensity: intensity.rawValue,
-                        distance: distance,
-                        averageSpeedMS: averageSpeedMS, // Use unwrapped value
-                        athleteID: athleteID,
-                        age: age, // Use unwrapped value
-                        weight: weight // Use unwrapped value
-                    )
-                //print(jsonString)
                 
-                sendJsonToAPI(jsonString: jsonString)
-                    //
 
             } else {
                 if let error = error {
@@ -79,23 +50,71 @@ class HealthViewModel: ObservableObject {
             }
         }
     }
+    func RequestWorkout(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
+        //self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
+        
+        self.fetchAge { age in
+            guard let age = age else {
+                print("Age is not available.")
+                return
+            }
+
+            self.fetchAverageWorkoutSpeed(for: workoutType.hkWorkoutActivityType) { averageSpeed in
+                guard let averageSpeedMS = averageSpeed else {
+                    print("Average Speed is not available.")
+                    return
+                }
+                
+                self.fetchWeight { weight in
+                    guard let weightR = weight else {
+                        print("Weight is not available.")
+                        return
+                    }
+                }
+
+                // Now that we have the data, we can format it into the JSON string
+                let jsonString = self.generateUserJSON(
+                    workoutType: workoutType.rawValue,
+                    intensity: intensity.rawValue,
+                    distance: distance,
+                    averageSpeedMS: averageSpeedMS, // Use the fetched average speed
+                    athleteID: athleteID,
+                    age: age, // Use unwrapped value
+                    weight: self.weight ?? 60 // Use unwrapped value
+                )
+                //print(jsonString)
+
+                sendJsonToAPI(jsonString: jsonString)
+            }
+        }
+    }
+
     
     // MARK: - Fetch Health Data
-    func fetchHealthData(workoutType: WorkoutType) {
-        fetchWeight()
-        fetchAverageWorkoutSpeed(for: workoutType.hkWorkoutActivityType)
-    }
+//    func fetchHealthData(workoutType: WorkoutType) {
+//        fetchWeight()
+//    }
     
     // MARK: - Fetch Weight
-    private func fetchWeight() {
+     func fetchWeight(completion: @escaping (Double?) -> Void) {
         guard let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
             print("Weight type is unavailable.")
+            completion(nil)
             return
         }
 
-        let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: 1, sortDescriptors: nil) { (_, samples, error) in
+        // Set up a query to fetch weight data
+        let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { (_, samples, error) in
+            
+            if let error = error {
+                print("Error fetching weight data: \(error.localizedDescription)")
+                completion(nil) // Call completion with nil on error
+                return
+            }
+            
             guard let sample = samples?.first as? HKQuantitySample else {
-                print("No weight data available: \(String(describing: error))")
+                print("No weight data available.")
+                completion(nil) // Call completion with nil if no sample is found
                 return
             }
             
@@ -103,39 +122,48 @@ class HealthViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.weight = weightInKg
                 print("Weight: \(weightInKg) kg")
+                completion(weightInKg) // Call completion with the fetched weight
             }
         }
         
         healthStore.execute(query)
     }
+
+
     
     // MARK: - Fetch Age
-    func fetchAge() {
+    func fetchAge(completion: @escaping (Int?) -> Void) {
         // Check if HealthKit is available
         guard HKHealthStore.isHealthDataAvailable() else {
             print("Health data is not available.")
+            completion(nil) // Call completion with nil if HealthKit is not available
             return
         }
         
         // Fetch the date of birth components
         do {
             let dateOfBirthComponents = try healthStore.dateOfBirthComponents() // Fetch date of birth components
+            
+            // Calculate age
             let ageComponents = Calendar.current.dateComponents([.year], from: dateOfBirthComponents.date!, to: Date())
+            
             DispatchQueue.main.async {
-                self.age = ageComponents.year
+                completion(ageComponents.year) // Call completion with the calculated age
             }
+            
             print(ageComponents.year!) // Print age
 
         } catch {
             print("Error fetching date of birth: \(error.localizedDescription)") // Handle error
             DispatchQueue.main.async {
-                self.age = nil // Reset age on error
+                completion(nil) // Call completion with nil on error
             }
         }
     }
+
     
     // MARK: - Fetch Average Workout Speed
-    func fetchAverageWorkoutSpeed(for workoutType: HKWorkoutActivityType) {
+    func fetchAverageWorkoutSpeed(for workoutType: HKWorkoutActivityType, completion: @escaping (Double?) -> Void) {
         let workoutPredicate = HKQuery.predicateForWorkouts(with: workoutType)
         
         let now = Date()
@@ -147,6 +175,7 @@ class HealthViewModel: ObservableObject {
         let query = HKSampleQuery(sampleType: HKWorkoutType.workoutType(), predicate: compoundPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (_, results, error) in
             guard let workouts = results as? [HKWorkout], error == nil else {
                 print("Error fetching workouts: \(error?.localizedDescription ?? "Unknown error")")
+                completion(nil) // Return nil if there was an error
                 return
             }
             
@@ -164,32 +193,27 @@ class HealthViewModel: ObservableObject {
             // Calculate average speed (meters per second)
             let averageSpeed = totalDuration > 0 ? (totalDistance / totalDuration) : nil
             DispatchQueue.main.async {
-                if let speed = averageSpeed {
-                    self.avgspeed = speed
-                    print("\(speed) m/s")
-                } else {
-                    self.avgspeed = 3
-                    print("No workouts found for \(workoutType).")
-                }
+                completion(averageSpeed) // Return the average speed
             }
         }
         
         healthStore.execute(query)
     }
+
     
     func generateUserJSON(workoutType: String, intensity: String, distance: Double, averageSpeedMS: Double, athleteID: String, age: Int, weight: Double) -> String {
         // Create the messages part
         let systemMessage = """
         {
             "role": "system",
-            "content": "You are a personal fitness trainer. You are going to receive workout parameters such as Workout Type(Running, Cycling, Walking), Workout Intensity (Low/Medium/High), Desired workout distance (in km), athlete age, Weight and GENDER in JSON. You should return workout splits formatted in JSON file. You will get JSON with user data You should create new workoutsplits in this JSON AND RETURN ONLY workoutSplits. GENERATE UP TO 5 WORKOUT SPLITS RETURN ONLY workoutSplits JSON PART. every first split shuld be with lower intensity (warm-up).RETURN ONLY JSON. NO TEXT EXCEPT JSON."
+            "content": "You are a personal fitness trainer. RETURN ONLY JSON WITH WORKOUTSPLITS. NO TEXT EXCEPT JSON. NO OTHER JSON PARTS EXCEPR WORKOUTSPLITS."
         }
         """
 
         let assistantMessage = """
         {
             "role": "assistant",
-            "content": "Generate different WORKOUT splits, you can change workout intensity, speed (meters per second) and distance for every new split, but the overall result should match general workout settings. DISTANCE IN EACH SPLIT CAN BE DIFFERENT BUT TOTAL DISTANCE IN ALL WORKOUT SPLITS SHOULD BE THE SAME AS MAXDISTANCE. SPLITINTENSITY CAN NOT BE MORE INTENSIVE THAN IN GIVEN intensity PARAMETR, BUT CAN BE LESS INTENSIVE. averageSpeedMS is an average speed in athlete workouts with the same type for several previous workouts. FOR LOW WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed LOWER THAN Value IN averageSpeedMS. FOR MEDIUM WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed SIMILAR TO Value IN averageSpeedMS.FOR HIGH WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed HIGHER THAN Value IN averageSpeedMS. DIFFERENCE IN SPEED FROM FASTEST TO LOWEST SPLIT SHOUD NOT BE MORE THAN 50% FROM GIVEN IN speed PARAMETR. DO NOT CREATE DIFFERENT SPLITS WITH THE SAME speed IN A ROW. SPLITS WITH THE SAME SPEED SHOUD HAVE THE SAME INTENSITY. RETURN ONLY workoutSplits JSON PART. NO TEXT EXCEPT JSON."
+            "content": "You are going to receive workout parameters such as Workout Type(Running, Cycling, Walking), Workout Intensity (Low/Medium/High), Desired workout distance (in km), athlete age, Weight and GENDER in JSON. You should return workout splits formatted in JSON file. You will get JSON with user data You should create new workoutsplits in this JSON AND RETURN ONLY workoutSplits. GENERATE UP TO 5 WORKOUT SPLITS RETURN ONLY workoutSplits JSON PART. every first split shuld be with lower intensity (warm-up). Generate different WORKOUT splits, you can change workout intensity, speed (meters per second) and distance for every new split, but the overall result should match general workout settings. DISTANCE IN EACH SPLIT CAN BE DIFFERENT BUT TOTAL DISTANCE IN ALL WORKOUT SPLITS SHOULD BE THE SAME AS MAXDISTANCE. SPLITINTENSITY CAN NOT BE MORE INTENSIVE THAN IN GIVEN intensity PARAMETR, BUT CAN BE LESS INTENSIVE. averageSpeedMS is an average speed in athlete workouts with the same type for several previous workouts. FOR LOW WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed LOWER THAN Value IN averageSpeedMS. FOR MEDIUM WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed SIMILAR TO Value IN averageSpeedMS.FOR HIGH WORKOUT INTENSITY CREATE SPLITS WITH TOTAL AVERAGE speed HIGHER THAN Value IN averageSpeedMS. DIFFERENCE IN SPEED FROM FASTEST TO LOWEST SPLIT SHOUD NOT BE MORE THAN 50% FROM GIVEN IN speed PARAMETR. DO NOT CREATE DIFFERENT SPLITS WITH THE SAME speed IN A ROW. SPLITS WITH THE SAME SPEED SHOUD HAVE THE SAME INTENSITY. RETURN ONLY workoutSplits JSON PART. NO TEXT EXCEPT JSON."
         }
         """
 
@@ -258,7 +282,7 @@ func sendJsonToAPI(jsonString: String) {
                 let cleanedContent = extractedContent
                     .replacingOccurrences(of: "\\n", with: "") // Remove newline characters
                     .replacingOccurrences(of: "\\", with: "")  // Remove backslashes
-
+                print(content)
                 // Parse the cleaned JSON for workout splits
                 if let contentData = cleanedContent.data(using: .utf8) {
                     if let workoutJson = try JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],

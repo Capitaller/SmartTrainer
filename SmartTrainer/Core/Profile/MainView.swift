@@ -163,7 +163,8 @@ struct MainView: View {
                     
                     // Suggest workout button
                     Button(action: {
-                        healthViewModel.requestHealthKitAuthorization(
+                        healthViewModel.requestHealthKitAuthorization()
+                        healthViewModel.RequestWorkout(
                             distance: workoutDistance,
                             intensity: selectedIntensity,
                             workoutType: selectedWorkoutType,
