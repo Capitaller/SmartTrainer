@@ -316,21 +316,16 @@ func sendJsonToAPI(jsonString: String) {
 }
 
 func extractWorkoutSplits(from content: String) -> String {
-    // Regular expression to match the JSON block for workoutSplits
-    let regexPattern = "\\{\\s*\"workoutSplits\"\\s*:\\s*\\[.*?\\]\\s*\\}"
-
-    // Create a regular expression object
-    let regex = try! NSRegularExpression(pattern: regexPattern, options: [.dotMatchesLineSeparators])
-
-    // Find matches in the content string
-    if let match = regex.firstMatch(in: content, options: [], range: NSRange(location: 0, length: content.utf16.count)) {
-        if let range = Range(match.range, in: content) {
-            let jsonContent = String(content[range])
-            return jsonContent
+        // Extract the workoutSplits part of the content
+        let regexPattern = "\\{\\s*\"workoutSplits\"\\s*:\\s*\\[.*?\\]\\s*\\}"
+        let regex = try! NSRegularExpression(pattern: regexPattern, options: [.dotMatchesLineSeparators])
+        if let match = regex.firstMatch(in: content, options: [], range: NSRange(location: 0, length: content.utf16.count)) {
+            if let range = Range(match.range, in: content) {
+                return String(content[range])
+            }
         }
+        return ""
     }
-    return "" // Return an empty string if no match is found
-}
 
 
 
