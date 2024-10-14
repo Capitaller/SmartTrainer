@@ -16,13 +16,6 @@ struct HealthData: Codable {
     var sex: String
 }
 
-// VO2Max data model
-struct VO2MaxData: Codable {
-    var id: Int
-    var athleteID: String
-    var date: String
-    var VO2MAX: Double
-}
 
 // Workout splits data model
 struct WorkoutSplit: Codable {
