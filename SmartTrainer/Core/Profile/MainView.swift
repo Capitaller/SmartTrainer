@@ -100,7 +100,7 @@ struct MainView: View {
                     .navigationBarHidden(true)
                     
                     // Navigation to workout splits page
-                    NavigationLink(destination: WorkoutSplitsView(), isActive: $showSplits) {
+                    NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel), isActive: $showSplits) {
                         EmptyView()
                     }
                 }
