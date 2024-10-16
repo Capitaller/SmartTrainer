@@ -16,15 +16,14 @@ struct HealthData: Codable {
     var sex: String
 }
 
-
-// Workout splits data model
-struct WorkoutSplit: Codable {
+struct WorkoutSplit: Identifiable, Codable {
     var id: Int
-    var workoutId: String
+    var workoutId: Int
     var athleteID: String
-    var distance: String
-    var splitTime: String
+    var distance: Double
+    var splitspeed: Double
     var splitIntensity: String
+    var splitworkouttype: String
     var comment: String
 }
 
