@@ -18,6 +18,7 @@ class HealthViewModel: ObservableObject {
     @Published var date: String = "2024-10-12"
     @Published var age: Int? // Property for age
     @Published var avgspeed: Double?
+    @Published var workoutSplits: [WorkoutSplit] = []
     
     private var healthStore = HKHealthStore()
     
@@ -53,6 +54,7 @@ class HealthViewModel: ObservableObject {
     func RequestWorkout(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
         //self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
         
+         // Debug print
         self.fetchAge { age in
             guard let age = age else {
                 print("Age is not available.")
@@ -84,7 +86,7 @@ class HealthViewModel: ObservableObject {
                 )
                 //print(jsonString)
 
-                sendJsonToAPI(jsonString: jsonString)
+                self.sendJsonToAPI(jsonString: jsonString)
             }
         }
     }
@@ -221,7 +223,7 @@ class HealthViewModel: ObservableObject {
         let userMessage = """
         {
             "role": "user",
-            "content": "{\\"workout\\":[{\\"id\\":101,\\"AthleteID\\":\\"\(athleteID)\\",\\"type\\":\\"\(workoutType)\\",\\"intensity\\":\\"\(intensity)\\",\\"distance\\":\(distance),\\"averageSpeedMS\\":\(averageSpeedMS),\\"workoutSplits\\":[{\\"id\\":1,\\"workoutId\\":\\"101\\",\\"AthleteID\\":\\"\(athleteID)\\",\\"distance\\":\\"distanceValue\\",\\"splitspeed\\":\\"speed\\",\\"splitIntensity\\":\\"splitIntensity\\",\\"splitworkouttype\\":\\"splitworkouttype\\",\\"comment\\":\\"\\"}]},{\\"userHealthData\\":{\\"athleteID\\":\\"\(athleteID)\\",\\"age\\":\(age),\\"weight\\":\(weight)}}]}"
+            "content": "{\\"workout\\":[{\\"id\\":101,\\"AthleteID\\":\\"\(athleteID)\\",\\"type\\":\\"\(workoutType)\\",\\"intensity\\":\\"\(intensity)\\",\\"distance\\":\(distance),\\"averageSpeedMS\\":\(averageSpeedMS),\\"workoutSplits\\":[{\\"id\\":1,\\"workoutId\\":101,\\"AthleteID\\":\\"\(athleteID)\\",\\"distance\\":1.5,\\"splitspeed\\":3.5,\\"splitIntensity\\":\\"splitIntensity\\",\\"splitworkouttype\\":\\"splitworkouttype\\",\\"comment\\":\\"\\"}]},{\\"userHealthData\\":{\\"athleteID\\":\\"\(athleteID)\\",\\"age\\":\(age),\\"weight\\":\(weight)}}]}"
         }
         """
 
@@ -237,8 +239,35 @@ class HealthViewModel: ObservableObject {
         return jsonString
     }
 
+    private func updateWorkoutSplits(from splits: [[String: Any]]) {
+        // Clear the existing splits
+        DispatchQueue.main.async {
+            self.workoutSplits.removeAll()
+            
+            // Loop through each split dictionary and create WorkoutSplit objects
+            for split in splits {
+                if let id = split["id"] as? Int,
+                   let workoutId = split["workoutId"] as? Int,
+                   let athleteID = split["AthleteID"] as? String, // Fixed the key case
+                   let distance = split["distance"] as? Double, // Handle as String
+                   let splitspeed = split["splitspeed"] as? Double, // Handle as String
+                   let splitIntensity = split["splitIntensity"] as? String,
+                   let splitworkouttype = split["splitworkouttype"] as? String,
+                   let comment = split["comment"] as? String {
+                    
+                    // Create a WorkoutSplit object and append to the array
+                    let workoutSplit = WorkoutSplit(id: id, workoutId: workoutId, athleteID: athleteID, distance: distance, splitspeed: splitspeed, splitIntensity: splitIntensity, splitworkouttype: splitworkouttype, comment: comment)
+                    print(workoutSplit)
+                    
+                    self.workoutSplits.append(workoutSplit)
+                } else {
+                    print("Error parsing split data: \(split)") // Print the split that failed to parse
+                }
+            }
+        }
+    }
 
-}
+
 func sendJsonToAPI(jsonString: String) {
     guard let url = URL(string: "https://smarttrainer.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview") else {
         print("Invalid URL")
@@ -277,7 +306,7 @@ func sendJsonToAPI(jsonString: String) {
                let message = firstChoice["message"] as? [String: Any],
                let content = message["content"] as? String {
                 
-                let extractedContent = extractWorkoutSplits(from:content)
+                let extractedContent = self.extractWorkoutSplits(from:content)
                 // Clean the content string
                 let cleanedContent = extractedContent
                     .replacingOccurrences(of: "\\n", with: "") // Remove newline characters
@@ -287,19 +316,20 @@ func sendJsonToAPI(jsonString: String) {
                 if let contentData = cleanedContent.data(using: .utf8) {
                     if let workoutJson = try JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],
                        let workoutSplits = workoutJson["workoutSplits"] as? [[String: Any]] {
-
+                        self.updateWorkoutSplits(from: workoutSplits)
                         // Iterate through each workout split and print details
-                        for split in workoutSplits {
-                            print("Workout Split ID: \(split["id"] ?? "")")
-                            print("Workout ID: \(split["workoutId"] ?? "")")
-                            print("Athlete ID: \(split["AthleteID"] ?? "")")
-                            print("Distance: \(split["distance"] ?? "")")
-                            print("Split Speed: \(split["splitspeed"] ?? "")")
-                            print("Split Intensity: \(split["splitIntensity"] ?? "")")
-                            print("Split Workout Type: \(split["splitworkouttype"] ?? "")")
-                            print("Comment: \(split["comment"] ?? "")")
-                            print("-------------")
-                        }
+//                        for split in workoutSplits {
+//                            print("Workout Split ID: \(split["id"] ?? "")")
+//                            print("Workout ID: \(split["workoutId"] ?? "")")
+//                            print("Athlete ID: \(split["AthleteID"] ?? "")")
+//                            print("Distance: \(split["distance"] ?? "")")
+//                            print("Split Speed: \(split["splitspeed"] ?? "")")
+//                            print("Split Intensity: \(split["splitIntensity"] ?? "")")
+//                            print("Split Workout Type: \(split["splitworkouttype"] ?? "")")
+//                            print("Comment: \(split["comment"] ?? "")")
+//                            print("-------------")
+//                            
+//                        }
                     } else {
                         print("Error parsing content JSON")
                     }
@@ -329,4 +359,6 @@ func extractWorkoutSplits(from content: String) -> String {
 
 
 
+
+}
 
