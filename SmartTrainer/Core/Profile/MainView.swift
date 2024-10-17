@@ -4,7 +4,6 @@
 //
 //  Created by Anton Shcherbakov on 29.09.2024.
 //
-
 import SwiftUI
 
 struct MainView: View {
@@ -13,32 +12,27 @@ struct MainView: View {
     @State private var selectedIntensity: IntensityLevel = .medium
     @State private var selectedWorkoutType: WorkoutType = .run
     @State private var workoutDistance: Double = 5.0
-    @State private var verticalOffset: CGFloat = 0 // State variable for vertical offset
-    @State private var showText: Bool = true // New state variable to control text visibility
     @State private var showSummary: Bool = false // State to control showing the summary
     @State private var showSplits: Bool = false // State to control showing splits page
 
     var body: some View {
         NavigationView {
             if let user = viewModel.currentUser {
-                ZStack {
+                ScrollView {
                     VStack {
-                        Spacer() // Centering content vertically
+                        Spacer().frame(height: 20)
                         
-                        // Conditionally show the text based on the state variable
-                        if showText {
-                            Text("Workout Settings")
-                                .font(.system(size: 40))
-                                .foregroundColor(Color(.darkGray))
-                                .padding(10)
-                            
-                            Text("Select workout type, intensity, and distance")
-                                .font(.system(size: 16))
-                                .foregroundColor(Color(.darkGray))
-                                .padding(10)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity)
-                        }
+                        Text("Workout Settings")
+                            .font(.system(size: 40))
+                            .foregroundColor(Color(.darkGray))
+                            .padding(10)
+                        
+                        Text("Select workout type, intensity, and distance")
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(.darkGray))
+                            .padding(10)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
                         
                         // Workout Type Selection
                         workoutTypeSelection
@@ -53,20 +47,18 @@ struct MainView: View {
                         // Workout Distance Control
                         workoutDistanceControl
                         
-                        Spacer().frame(height: 5)
+                        Spacer().frame(height: 10)
                         
                         // Suggest workout button
                         Button(action: {
                             healthViewModel.requestHealthKitAuthorization()
-                            healthViewModel.RequestWorkout( // Access the method directly from healthViewModel
+                            healthViewModel.RequestWorkout(
                                 distance: workoutDistance,
                                 intensity: selectedIntensity,
                                 workoutType: selectedWorkoutType,
                                 athleteID: user.id
                             )
                             withAnimation {
-                                verticalOffset = -UIScreen.main.bounds.height / 4 + 10
-                                showText = false
                                 showSummary = true
                             }
                         }) {
@@ -80,29 +72,29 @@ struct MainView: View {
                         }
                         .padding(.horizontal, 40)
                         
-                        // Show Summary under the button if workout is suggested
+                        // Show Workout Summary if workout is suggested
                         if showSummary {
                             WorkoutSummaryView(
                                 workoutType: selectedWorkoutType,
                                 distance: workoutDistance,
                                 intensity: selectedIntensity,
                                 onSplitsButtonPressed: {
-                                    showSplits = true
+                                    withAnimation {
+                                        showSplits = true // Trigger the navigation to splits
+                                    }
                                 }
                             )
+                            .padding(.top, 20)
                             .padding(.bottom, 40)
                         }
-                        Spacer()
+                        
+                        // NavigationLink to splits page
+                        NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel), isActive: $showSplits) {
+                            EmptyView()
+                        }
                     }
-                    .offset(y: verticalOffset)
-                    .animation(.easeInOut, value: verticalOffset)
                     .navigationBarTitle("Workout Planner", displayMode: .inline)
                     .navigationBarHidden(true)
-                    
-                    // Navigation to workout splits page
-                    NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel), isActive: $showSplits) {
-                        EmptyView()
-                    }
                 }
             }
         }
@@ -113,6 +105,7 @@ struct MainView: View {
         HStack {
             Button(action: {
                 selectedWorkoutType = .bike
+                showSummary = false // Hide summary when workout type changes
             }) {
                 Text("Bike")
                     .fontWeight(.semibold)
@@ -125,6 +118,7 @@ struct MainView: View {
             
             Button(action: {
                 selectedWorkoutType = .run
+                showSummary = false // Hide summary when workout type changes
             }) {
                 Text("Run")
                     .fontWeight(.semibold)
@@ -137,6 +131,7 @@ struct MainView: View {
             
             Button(action: {
                 selectedWorkoutType = .walk
+                showSummary = false // Hide summary when workout type changes
             }) {
                 Text("Walk")
                     .fontWeight(.semibold)
@@ -155,6 +150,7 @@ struct MainView: View {
         HStack {
             Button(action: {
                 selectedIntensity = .low
+                showSummary = false // Hide summary when intensity changes
             }) {
                 Text("Low")
                     .fontWeight(.semibold)
@@ -167,6 +163,7 @@ struct MainView: View {
             
             Button(action: {
                 selectedIntensity = .medium
+                showSummary = false // Hide summary when intensity changes
             }) {
                 Text("Medium")
                     .fontWeight(.semibold)
@@ -179,6 +176,7 @@ struct MainView: View {
             
             Button(action: {
                 selectedIntensity = .high
+                showSummary = false // Hide summary when intensity changes
             }) {
                 Text("High")
                     .fontWeight(.semibold)
@@ -199,6 +197,7 @@ struct MainView: View {
                 Button(action: {
                     if workoutDistance > 1 {
                         workoutDistance -= 0.5
+                        showSummary = false // Hide summary when distance changes
                     }
                 }) {
                     Image(systemName: "minus.circle.fill")
@@ -214,6 +213,7 @@ struct MainView: View {
                 
                 Button(action: {
                     workoutDistance += 0.5
+                    showSummary = false // Hide summary when distance changes
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 24))
@@ -227,8 +227,4 @@ struct MainView: View {
                 .foregroundColor(Color(.darkGray))
         }
     }
-}
-
-#Preview {
-    MainView()
 }
