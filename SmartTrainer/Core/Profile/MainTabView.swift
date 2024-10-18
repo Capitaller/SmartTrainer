@@ -34,7 +34,7 @@ struct MainTabView: View {
                             Text("Workouts")
                         }
                         .tag(1)
-                    MainView()
+                    WorkoutSettingsView()
                         .tabItem {
                             Image(systemName: "house.fill")
                             Text("Home")

@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct MainView: View {
+struct WorkoutSettingsView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @StateObject var healthViewModel = HealthViewModel() // Health ViewModel
     @State private var selectedIntensity: IntensityLevel = .medium
