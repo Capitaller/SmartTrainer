@@ -28,17 +28,26 @@ struct WorkoutSplit: Identifiable, Codable {
 }
 
 // Workout data model
-struct Workout: Codable {
+struct Workout: Identifiable, Codable {
     var id: Int
     var athleteID: String
     var date: String
     var type: String
     var intensity: String
     var MAXdistance: Double
-    var approved: Bool
+    var approvingStatus: Bool
     var TrainerComment: String
     var workoutSplits: [WorkoutSplit]
 }
+struct WorkoutF: Identifiable, Codable {
+    var id: String
+    var date: Date
+    var approvingState: String
+    var workoutType: String
+    var distance: Double
+    var intensity: String
+}
+
 
 // User data model
 struct UserData: Codable {

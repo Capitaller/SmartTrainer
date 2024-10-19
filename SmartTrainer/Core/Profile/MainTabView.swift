@@ -28,7 +28,7 @@ struct MainTabView: View {
                 
                 // Show "Workouts" tab if the user is an athlete
                 if user.type == .athlete {
-                    Text("Workouts")
+                    WorkoutsView()
                         .tabItem {
                             Image(systemName: "figure.run.circle")
                             Text("Workouts")
