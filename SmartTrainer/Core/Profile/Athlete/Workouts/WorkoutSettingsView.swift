@@ -72,8 +72,8 @@ struct WorkoutSettingsView: View {
                         }
                         .padding(.horizontal, 40)
                         
-                        // Show Workout Summary if workout is suggested
-                        if showSummary {
+                        // Show Workout Summary if workout is suggested and splits are available
+                        if showSummary && !healthViewModel.workoutSplits.isEmpty {
                             WorkoutSummaryView(
                                 workoutType: selectedWorkoutType,
                                 distance: workoutDistance,
