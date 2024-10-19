@@ -13,7 +13,7 @@ class WorkoutViewModel: ObservableObject {
     @Published var workoutID: String?
     
     // Function to create a new workout in Firestore using workoutId from splits
-    func createWorkout(userId: String, workoutSplits: [WorkoutSplit]) async throws {
+    func createWorkout(userId: String, workoutSplits: [WorkoutSplit], workoutType: WorkoutType,distance: Double,intensity: IntensityLevel) async throws {
         guard let firstSplit = workoutSplits.first else {
             print("No workout splits available")
             return
@@ -31,7 +31,10 @@ class WorkoutViewModel: ObservableObject {
             "userId": userId,
 //            "workoutId": workoutIdFromSplit,
             "date": Date(),
-            "approvingState": WorkoutApprovalStatus.pendingApproval
+            "approvingState": WorkoutApprovalStatus.pendingApproval.rawValue,
+            "workoutType": workoutType.rawValue,
+            "distance": distance,
+            "intensity": intensity.rawValue
         ]
         
         do {

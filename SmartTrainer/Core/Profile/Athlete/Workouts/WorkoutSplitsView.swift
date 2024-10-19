@@ -8,6 +8,9 @@ import SwiftUI
 
 struct WorkoutSplitsView: View {
     @ObservedObject var healthViewModel: HealthViewModel
+    var workoutType: WorkoutType
+    var distance: Double
+    var intensity: IntensityLevel
     @StateObject var workoutViewModel = WorkoutViewModel()
     @EnvironmentObject var viewModel: AuthViewModel
     @State private var editMode: [Int: Bool] = [:] // A dictionary to track which split is being edited
@@ -125,7 +128,7 @@ struct WorkoutSplitsView: View {
                             let workoutSplits = healthViewModel.workoutSplits  // Assume you pass workout splits here
                             
                             // Create a new workout in Firestore using workoutId from splits
-                            try await workoutViewModel.createWorkout(userId: viewModel.currentUser?.id ?? "", workoutSplits: workoutSplits)
+                            try await workoutViewModel.createWorkout(userId: viewModel.currentUser?.id ?? "", workoutSplits: workoutSplits, workoutType: workoutType,distance: distance,intensity: intensity)
                             
                             // Show the success alert and notify the user
                             showingAlert = true

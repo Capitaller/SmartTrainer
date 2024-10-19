@@ -29,19 +29,19 @@ class HealthViewModel: ObservableObject {
             print("Health data is not available on this device.")
             return
         }
-
+        
         // Define the types of data we want to read from HealthKit
         let typesToRead: Set<HKObjectType> = [
             HKObjectType.quantityType(forIdentifier: .bodyMass)!,
             HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
         ]
-
+        
         // Request authorization
         healthStore.requestAuthorization(toShare: nil, read: typesToRead) { success, error in
             if success {
                 print("HealthKit authorization successful.")
                 
-
+                
             } else {
                 if let error = error {
                     print("HealthKit authorization failed with error: \(error.localizedDescription)")
@@ -54,13 +54,13 @@ class HealthViewModel: ObservableObject {
     func RequestWorkout(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
         //self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
         
-         // Debug print
+        // Debug print
         self.fetchAge { age in
             guard let age = age else {
                 print("Age is not available.")
                 return
             }
-
+            
             self.fetchAverageWorkoutSpeed(for: workoutType.hkWorkoutActivityType) { averageSpeed in
                 guard let averageSpeedMS = averageSpeed else {
                     print("Average Speed is not available.")
@@ -68,12 +68,12 @@ class HealthViewModel: ObservableObject {
                 }
                 
                 self.fetchWeight { weight in
-                    guard let weightR = weight else {
+                    guard let weight = weight else {
                         print("Weight is not available.")
                         return
                     }
                 }
-
+                
                 // Now that we have the data, we can format it into the JSON string
                 let jsonString = self.generateUserJSON(
                     workoutType: workoutType.rawValue,
@@ -85,26 +85,26 @@ class HealthViewModel: ObservableObject {
                     weight: self.weight ?? 60 // Use unwrapped value
                 )
                 //print(jsonString)
-
+                
                 self.sendJsonToAPI(jsonString: jsonString)
             }
         }
     }
-
+    
     
     // MARK: - Fetch Health Data
-//    func fetchHealthData(workoutType: WorkoutType) {
-//        fetchWeight()
-//    }
+    //    func fetchHealthData(workoutType: WorkoutType) {
+    //        fetchWeight()
+    //    }
     
     // MARK: - Fetch Weight
-     func fetchWeight(completion: @escaping (Double?) -> Void) {
+    func fetchWeight(completion: @escaping (Double?) -> Void) {
         guard let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
             print("Weight type is unavailable.")
             completion(nil)
             return
         }
-
+        
         // Set up a query to fetch weight data
         let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { (_, samples, error) in
             
@@ -130,8 +130,8 @@ class HealthViewModel: ObservableObject {
         
         healthStore.execute(query)
     }
-
-
+    
+    
     
     // MARK: - Fetch Age
     func fetchAge(completion: @escaping (Int?) -> Void) {
@@ -154,7 +154,7 @@ class HealthViewModel: ObservableObject {
             }
             
             print(ageComponents.year!) // Print age
-
+            
         } catch {
             print("Error fetching date of birth: \(error.localizedDescription)") // Handle error
             DispatchQueue.main.async {
@@ -162,7 +162,7 @@ class HealthViewModel: ObservableObject {
             }
         }
     }
-
+    
     
     // MARK: - Fetch Average Workout Speed
     func fetchAverageWorkoutSpeed(for workoutType: HKWorkoutActivityType, completion: @escaping (Double?) -> Void) {
@@ -201,14 +201,14 @@ class HealthViewModel: ObservableObject {
         
         healthStore.execute(query)
     }
-
+    
     
     func generateUserJSON(workoutType: String, intensity: String, distance: Double, averageSpeedMS: Double, athleteID: String, age: Int, weight: Double) -> String {
         // Create the messages part
         let systemMessage =  RoleMessages.systemMessage
-
+        
         let assistantMessage = RoleMessages.assistantMessage
-
+        
         // Create the user message
         let userMessage = """
         {
@@ -216,7 +216,7 @@ class HealthViewModel: ObservableObject {
             "content": "{\\"workout\\":[{\\"id\\":101,\\"AthleteID\\":\\"\(athleteID)\\",\\"type\\":\\"\(workoutType)\\",\\"intensity\\":\\"\(intensity)\\",\\"distance\\":\(distance),\\"averageSpeedMS\\":\(averageSpeedMS),\\"workoutSplits\\":[{\\"id\\":1,\\"workoutId\\":101,\\"AthleteID\\":\\"\(athleteID)\\",\\"distance\\":1.5,\\"splitspeed\\":3.5,\\"splitIntensity\\":\\"splitIntensity\\",\\"splitworkouttype\\":\\"splitworkouttype\\",\\"comment\\":\\"\\"}]},{\\"userHealthData\\":{\\"athleteID\\":\\"\(athleteID)\\",\\"age\\":\(age),\\"weight\\":\(weight)}}]}"
         }
         """
-
+        
         // Combine all parts into a single JSON string
         let jsonString = """
         {
@@ -225,10 +225,10 @@ class HealthViewModel: ObservableObject {
             "top_p": 0.95
         }
         """
-
+        
         return jsonString
     }
-
+    
     private func updateWorkoutSplits(from splits: [[String: Any]]) {
         // Clear the existing splits
         DispatchQueue.main.async {
@@ -256,86 +256,86 @@ class HealthViewModel: ObservableObject {
             }
         }
     }
-
-
-func sendJsonToAPI(jsonString: String) {
-    guard let url = URL(string: "https://smarttrainer.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview") else {
-        print("Invalid URL")
-        return
-    }
     
-    // Load the API key from the .env file
-    let env = Env.load()
-    guard let apiKey = env["API_KEY"] else {
-        print("API Key not found in .env file")
-        return
-    }
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue(apiKey, forHTTPHeaderField: "api-key") // Set the api-key header
-    request.httpBody = jsonString.data(using: .utf8)
     
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-        if let error = error {
-            print("Error sending request: \(error.localizedDescription)")
+    func sendJsonToAPI(jsonString: String) {
+        guard let url = URL(string: "https://smarttrainer.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview") else {
+            print("Invalid URL")
             return
         }
         
-        guard let data = data else {
-            print("No data returned")
+        // Load the API key from the .env file
+        let env = Env.load()
+        guard let apiKey = env["API_KEY"] else {
+            print("API Key not found in .env file")
             return
         }
-
-        do {
-            // Parse the JSON response
-            if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let choices = jsonResponse["choices"] as? [[String: Any]],
-               let firstChoice = choices.first,
-               let message = firstChoice["message"] as? [String: Any],
-               let content = message["content"] as? String {
-                
-                let extractedContent = self.extractWorkoutSplits(from:content)
-                // Clean the content string
-                let cleanedContent = extractedContent
-                    .replacingOccurrences(of: "\\n", with: "") // Remove newline characters
-                    .replacingOccurrences(of: "\\", with: "")  // Remove backslashes
-                print(content)
-                // Parse the cleaned JSON for workout splits
-                if let contentData = cleanedContent.data(using: .utf8) {
-                    if let workoutJson = try JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],
-                       let workoutSplits = workoutJson["workoutSplits"] as? [[String: Any]] {
-                        self.updateWorkoutSplits(from: workoutSplits)
-                        // Iterate through each workout split and print details
-//                        for split in workoutSplits {
-//                            print("Workout Split ID: \(split["id"] ?? "")")
-//                            print("Workout ID: \(split["workoutId"] ?? "")")
-//                            print("Athlete ID: \(split["AthleteID"] ?? "")")
-//                            print("Distance: \(split["distance"] ?? "")")
-//                            print("Split Speed: \(split["splitspeed"] ?? "")")
-//                            print("Split Intensity: \(split["splitIntensity"] ?? "")")
-//                            print("Split Workout Type: \(split["splitworkouttype"] ?? "")")
-//                            print("Comment: \(split["comment"] ?? "")")
-//                            print("-------------")
-//                            
-//                        }
-                    } else {
-                        print("Error parsing content JSON")
-                    }
-                }
-            } else {
-                print("Unexpected JSON structure")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "api-key") // Set the api-key header
+        request.httpBody = jsonString.data(using: .utf8)
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending request: \(error.localizedDescription)")
+                return
             }
-        } catch {
-            print("Error parsing JSON: \(error.localizedDescription)")
+            
+            guard let data = data else {
+                print("No data returned")
+                return
+            }
+            
+            do {
+                // Parse the JSON response
+                if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let choices = jsonResponse["choices"] as? [[String: Any]],
+                   let firstChoice = choices.first,
+                   let message = firstChoice["message"] as? [String: Any],
+                   let content = message["content"] as? String {
+                    
+                    let extractedContent = self.extractWorkoutSplits(from:content)
+                    // Clean the content string
+                    let cleanedContent = extractedContent
+                        .replacingOccurrences(of: "\\n", with: "") // Remove newline characters
+                        .replacingOccurrences(of: "\\", with: "")  // Remove backslashes
+                    print(content)
+                    // Parse the cleaned JSON for workout splits
+                    if let contentData = cleanedContent.data(using: .utf8) {
+                        if let workoutJson = try JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],
+                           let workoutSplits = workoutJson["workoutSplits"] as? [[String: Any]] {
+                            self.updateWorkoutSplits(from: workoutSplits)
+                            // Iterate through each workout split and print details
+                            //                        for split in workoutSplits {
+                            //                            print("Workout Split ID: \(split["id"] ?? "")")
+                            //                            print("Workout ID: \(split["workoutId"] ?? "")")
+                            //                            print("Athlete ID: \(split["AthleteID"] ?? "")")
+                            //                            print("Distance: \(split["distance"] ?? "")")
+                            //                            print("Split Speed: \(split["splitspeed"] ?? "")")
+                            //                            print("Split Intensity: \(split["splitIntensity"] ?? "")")
+                            //                            print("Split Workout Type: \(split["splitworkouttype"] ?? "")")
+                            //                            print("Comment: \(split["comment"] ?? "")")
+                            //                            print("-------------")
+                            //
+                            //                        }
+                        } else {
+                            print("Error parsing content JSON")
+                        }
+                    }
+                } else {
+                    print("Unexpected JSON structure")
+                }
+            } catch {
+                print("Error parsing JSON: \(error.localizedDescription)")
+            }
         }
+        
+        task.resume()
     }
     
-    task.resume()
-}
-
-func extractWorkoutSplits(from content: String) -> String {
+    func extractWorkoutSplits(from content: String) -> String {
         // Extract the workoutSplits part of the content
         let regexPattern = "\\{\\s*\"workoutSplits\"\\s*:\\s*\\[.*?\\]\\s*\\}"
         let regex = try! NSRegularExpression(pattern: regexPattern, options: [.dotMatchesLineSeparators])
@@ -346,9 +346,5 @@ func extractWorkoutSplits(from content: String) -> String {
         }
         return ""
     }
-
-
-
-
 }
 

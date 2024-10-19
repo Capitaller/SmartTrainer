@@ -14,7 +14,7 @@ struct WorkoutSettingsView: View {
     @State private var workoutDistance: Double = 5.0
     @State private var showSummary: Bool = false // State to control showing the summary
     @State private var showSplits: Bool = false // State to control showing splits page
-
+    
     var body: some View {
         NavigationView {
             if let user = viewModel.currentUser {
@@ -89,7 +89,7 @@ struct WorkoutSettingsView: View {
                         }
                         
                         // NavigationLink to splits page
-                        NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel), isActive: $showSplits) {
+                        NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel, workoutType: selectedWorkoutType,distance: workoutDistance,intensity: selectedIntensity), isActive: $showSplits) {
                             EmptyView()
                         }
                     }
