@@ -22,6 +22,12 @@ struct MainTabView: View {
                             Text("Athletes")
                         }
                         .tag(0)
+                    TrainerWorkoutsView()
+                        .tabItem {
+                            Image(systemName: "figure.run.circle")
+                            Text("Workouts")
+                        }
+                        .tag(1)
                     
                     
                 }

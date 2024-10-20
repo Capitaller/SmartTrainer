@@ -37,6 +37,10 @@ struct WorkoutsView: View {
                         }
                     }
                     .padding()
+                    .background(Color(.systemGray6)) // Adding a background for better visibility
+                    .cornerRadius(10)
+                    .shadow(radius: 2)
+                    .padding(.horizontal, 10)
                 }
             }
             .navigationTitle("Workouts")
@@ -56,6 +60,7 @@ struct WorkoutsView: View {
             }
         }
     }
+
     func colorForApprovalState(_ state: String) -> Color {
         switch state {
         case "Approved":

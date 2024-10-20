@@ -46,6 +46,7 @@ struct WorkoutF: Identifiable, Codable {
     var workoutType: String
     var distance: Double
     var intensity: String
+    var athleteName: String
 }
 
 
