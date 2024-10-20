@@ -89,7 +89,7 @@ struct WorkoutSettingsView: View {
                         }
                         
                         // NavigationLink to splits page
-                        NavigationLink(destination: WorkoutSplitsView(healthViewModel: healthViewModel, workoutType: selectedWorkoutType,distance: workoutDistance,intensity: selectedIntensity), isActive: $showSplits) {
+                        NavigationLink(destination: GeneratedWorkoutSplitsView(healthViewModel: healthViewModel, workoutType: selectedWorkoutType,distance: workoutDistance,intensity: selectedIntensity), isActive: $showSplits) {
                             EmptyView()
                         }
                     }

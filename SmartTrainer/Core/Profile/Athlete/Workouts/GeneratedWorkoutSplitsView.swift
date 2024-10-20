@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct WorkoutSplitsView: View {
+struct GeneratedWorkoutSplitsView: View {
     @ObservedObject var healthViewModel: HealthViewModel
     var workoutType: WorkoutType
     var distance: Double
