@@ -11,6 +11,7 @@ struct AthleteWorkoutSplitsView: View {
     @StateObject private var workoutViewModel = WorkoutViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
     var workoutId: String
+    var approvingStatus: String
     @State private var workoutSplits: [WorkoutSplit] = []
 
     var body: some View {
@@ -32,20 +33,22 @@ struct AthleteWorkoutSplitsView: View {
                     .padding()
                 }
             }
-            
-            Button(action: {
-                transferToWatch()
-            }) {
-                HStack {
-                    Image(systemName: "watch")
-                    Text("Transfer to Watch")
+            if approvingStatus == WorkoutApprovalStatus.approved.rawValue {
+                Button(action: {
+                    transferToWatch()
+                }) {
+                    HStack {
+                        Image(systemName: "applewatch")
+                        Text("Transfer to Watch")
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(8)
                 }
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.blue)
-                .cornerRadius(8)
+                .padding(.top)
             }
-            .padding(.top)
+            
         }
         .navigationTitle("Workout Splits")
         .onAppear {

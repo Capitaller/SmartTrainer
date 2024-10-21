@@ -16,7 +16,7 @@ struct WorkoutsView: View {
         NavigationView {
             List {
                 ForEach(viewModel.workouts, id: \.id) { workout in
-                    NavigationLink(destination: AthleteWorkoutSplitsView(workoutId: workout.id)) {
+                    NavigationLink(destination: AthleteWorkoutSplitsView(workoutId: workout.id, approvingStatus: workout.approvingState)) {
                         VStack(alignment: .leading) {
                             HStack {
                                 Text(workout.date, style: .date)
