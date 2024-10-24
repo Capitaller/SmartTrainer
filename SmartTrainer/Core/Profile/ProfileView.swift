@@ -34,6 +34,19 @@ struct ProfileView: View {
                             Text(user.email)
                                 .font(.footnote)
                                 .foregroundColor(.gray)
+                            if user.type == .trainer {
+                                Text(user.id)
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .contextMenu {
+                                        Button(action: {
+                                            UIPasteboard.general.string = user.id
+                                        }) {
+                                            Label("Copy ID", systemImage: "doc.on.doc")
+                                        }
+                                    }
+                            }
+                            
                         }
                     }
                 }
