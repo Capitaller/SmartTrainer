@@ -50,7 +50,7 @@ struct TrainerWorkoutsView: View {
                     }
                 }
             }
-            .navigationTitle("Workouts for Your Athletes")
+            .navigationTitle("Athletes Workouts")
             .onAppear {
                 loadAthletesAndWorkouts()
             }
