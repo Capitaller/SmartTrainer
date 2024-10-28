@@ -22,15 +22,15 @@ struct MainTabView: View {
                             Text("Athletes")
                         }
                         .tag(1)
-                }
+                    
                     TrainerWorkoutsView()
                         .tabItem {
                             Image(systemName: "figure.run.circle")
                             Text("Workouts")
                         }
                         .tag(0)
-
-               
+                    
+                }
                 
                 
                 
