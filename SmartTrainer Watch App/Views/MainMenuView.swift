@@ -9,6 +9,7 @@ import HealthKit
 
 struct MainMenuView: View {
     @State private var selection: Tab = .startWorkout
+    @StateObject var watchConnector = WatchConnectivityManager()
     enum Tab {
         case Settings, startWorkout
     }
