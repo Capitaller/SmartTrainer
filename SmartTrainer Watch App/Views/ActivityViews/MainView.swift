@@ -43,7 +43,7 @@ struct MainView: View {
                     let elapsedTimeInSeconds = trainingViewModel.dataB?.elapsedTime(at: Date()) ?? 1
                     let speedInMS = trainingViewModel.distance_training / elapsedTimeInSeconds // Distance in km divided by time in hours
                     let speedInKmh = speedInMS * 3.6 // Convert speed to km/h
-
+                    
                     Text("\(speedInKmh, specifier: "%.1f") km/h")
                 }
                 .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
