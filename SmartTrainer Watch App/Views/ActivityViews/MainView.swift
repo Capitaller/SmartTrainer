@@ -13,7 +13,7 @@ import CoreData
 
 struct MainView: View {
     
-
+    
     var body: some View {
         // The TimelineView displays a timeline of metrics using the MetricsTimelineSchedule.
         TimelineView(MetricsTimelineSchedule(from: trainingViewModel.dataB?.startDate ?? Date(), isPaused: trainingViewModel.training?.state == .paused)) { context in
@@ -31,7 +31,7 @@ struct MainView: View {
                     
                     // Display the active energy in kilocalories.
                     Text(Measurement(value: trainingViewModel.activeEnergy_training, unit: UnitEnergy.kilocalories)
-                            .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
+                        .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
                     
                     // Display the heart rate in beats per minute (bpm).
                     Text(trainingViewModel.heartRate_training.formatted(.number.precision(.fractionLength(0))) + " bpm")
@@ -39,7 +39,12 @@ struct MainView: View {
                     
                     // Display the distance in meters.
                     Text(Measurement(value: trainingViewModel.distance_training, unit: UnitLength.meters)
-                            .formatted(.measurement(width: .abbreviated, usage: .road)))
+                        .formatted(.measurement(width: .abbreviated, usage: .road)))
+                    let elapsedTimeInSeconds = trainingViewModel.dataB?.elapsedTime(at: Date()) ?? 1
+                    let speedInMS = trainingViewModel.distance_training / elapsedTimeInSeconds // Distance in km divided by time in hours
+                    let speedInKmh = speedInMS * 3.6 // Convert speed to km/h
+                    
+                    Text("\(speedInKmh, specifier: "%.1f") km/h")
                 }
                 .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,7 +53,10 @@ struct MainView: View {
                 .tabItem {
                     Label("Metrics", systemImage: "")
                 }
-                
+                VStack(alignment: .leading)
+                {
+                    WorkoutSplitView(comparisonDistance: trainingViewModel.distance_training)
+                }
                 // Tab 2: "Text" tab
                 VStack(alignment: .leading)  {
                     
@@ -82,10 +90,10 @@ struct MainView: View {
             .tabViewStyle(.carousel)
         }
     }
-
+    
     // Access the TrainingViewModel through the environment.
     @EnvironmentObject var trainingViewModel: TrainingViewModel
-
+    
 }
 
 struct MetricsView_Previews: PreviewProvider {
@@ -106,11 +114,11 @@ struct MetricsView_Previews: PreviewProvider {
 //    func entries(from startDate: Date, mode: TimelineScheduleMode) -> AnyIterator<Date> {
 //        var baseSchedule = PeriodicTimelineSchedule(from: self.startDate, by: (mode == .lowFrequency ? 1.0 : 1.0 / 30.0))
 //            .entries(from: startDate, mode: mode)
-//        
+//
 //        return AnyIterator<Date> {
 //            guard !isPaused else { return nil }
 //            return baseSchedule.next()
 //        }
 //    }
-//    
+//
 //}

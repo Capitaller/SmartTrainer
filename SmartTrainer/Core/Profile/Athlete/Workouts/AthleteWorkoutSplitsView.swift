@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AthleteWorkoutSplitsView: View {
     @StateObject private var workoutViewModel = WorkoutViewModel()
+    @StateObject private var watchConnector = WatchConnectivityManager() // Use StateObject here
     @EnvironmentObject var authViewModel: AuthViewModel
     var workoutId: String
     var approvingStatus: String
@@ -73,8 +74,11 @@ struct AthleteWorkoutSplitsView: View {
     }
 
     private func transferToWatch() {
-        // Implement the logic to transfer splits to the watch
-        print("Transfer to Watch triggered for workout ID: \(workoutId)")
+        // Send each workout split to the watch
+        for split in workoutSplits {
+            watchConnector.sendWorkoutSplit(split)
+        }
+        
+        print("Transfer to Watch triggered for workout ID: \(workoutId) with \(workoutSplits.count) splits.")
     }
 }
-

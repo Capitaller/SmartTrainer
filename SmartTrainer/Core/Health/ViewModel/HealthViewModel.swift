@@ -20,6 +20,10 @@ class HealthViewModel: ObservableObject {
     @Published var avgspeed: Double?
     @Published var workoutSplits: [WorkoutSplit] = []
     
+    private var savedDistance: Double?
+        private var savedIntensity: IntensityLevel?
+        private var savedWorkoutType: WorkoutType?
+        private var savedAthleteID: String?
     private var healthStore = HKHealthStore()
     
     // MARK: - Request HealthKit Authorization
@@ -53,7 +57,10 @@ class HealthViewModel: ObservableObject {
     }
     func RequestWorkout(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
         //self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
-        
+        savedDistance = distance
+                savedIntensity = intensity
+                savedWorkoutType = workoutType
+                savedAthleteID = athleteID
         // Debug print
         self.fetchAge { age in
             guard let age = age else {
@@ -252,6 +259,7 @@ class HealthViewModel: ObservableObject {
                     self.workoutSplits.append(workoutSplit)
                 } else {
                     print("Error parsing split data: \(split)") // Print the split that failed to parse
+                    self.RequestWorkout(distance: self.savedDistance!, intensity: self.savedIntensity!, workoutType: self.savedWorkoutType!, athleteID: self.savedAthleteID!)
                 }
             }
         }
@@ -322,13 +330,16 @@ class HealthViewModel: ObservableObject {
                             //                        }
                         } else {
                             print("Error parsing content JSON")
+                            self.RequestWorkout(distance: self.savedDistance!, intensity: self.savedIntensity!, workoutType: self.savedWorkoutType!, athleteID: self.savedAthleteID!)
                         }
                     }
                 } else {
                     print("Unexpected JSON structure")
+                    self.RequestWorkout(distance: self.savedDistance!, intensity: self.savedIntensity!, workoutType: self.savedWorkoutType!, athleteID: self.savedAthleteID!)
                 }
             } catch {
                 print("Error parsing JSON: \(error.localizedDescription)")
+                self.RequestWorkout(distance: self.savedDistance!, intensity: self.savedIntensity!, workoutType: self.savedWorkoutType!, athleteID: self.savedAthleteID!)
             }
         }
         

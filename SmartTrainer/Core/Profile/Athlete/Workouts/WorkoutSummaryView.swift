@@ -12,7 +12,7 @@ struct WorkoutSummaryView: View {
     var distance: Double
     var intensity: IntensityLevel
     var onSplitsButtonPressed: () -> Void
-
+    
     var body: some View {
         VStack(spacing: 10) {
             Text("Workout Summary")
