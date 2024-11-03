@@ -10,14 +10,14 @@ import WatchConnectivity
 
 class WatchConnectivityManager: NSObject, WCSessionDelegate, ObservableObject {
     var session: WCSession
-
+    
     init(session: WCSession = .default) {
-            self.session = session
-            super.init()
-            session.delegate = self
-            session.activate()
-        }
-
+        self.session = session
+        super.init()
+        session.delegate = self
+        session.activate()
+    }
+    
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if let error = error {
             print("WCSession activation failed: \(error.localizedDescription)")
@@ -25,19 +25,16 @@ class WatchConnectivityManager: NSObject, WCSessionDelegate, ObservableObject {
             print("WCSession activated with state: \(activationState)")
         }
     }
-//    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-//            
-//        }
-
+    
     func sessionDidBecomeInactive(_ session: WCSession) {
         print("WCSession became inactive.")
     }
-
+    
     func sessionDidDeactivate(_ session: WCSession) {
         print("WCSession deactivated. Activating a new session.")
         session.activate() // Reactivate the session if needed
     }
-
+    
     func sendWorkoutSplit(_ split: WorkoutSplit) {
         print(session.isPaired)
         print(session.isWatchAppInstalled)

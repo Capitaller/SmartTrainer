@@ -35,8 +35,8 @@ class AuthViewModel: ObservableObject {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             
             DispatchQueue.main.async {
-                        self.userSession = result.user
-                    }
+                self.userSession = result.user
+            }
             await fetchUser()
         } catch {
             print("DEBUG: Failed to log in with error: \(error.localizedDescription)")
@@ -70,24 +70,24 @@ class AuthViewModel: ObservableObject {
         }
     }
     func fetchAthletes() async {
-            guard let trainerID = currentUser?.id else { return }  // Ensure current user is a trainer
+        guard let trainerID = currentUser?.id else { return }  // Ensure current user is a trainer
+        
+        let query = Firestore.firestore().collection("users")
+            .whereField("trainerid", isEqualTo: trainerID)
+            .whereField("type", isEqualTo: UserType.athlete.rawValue)  // Ensure you fetch only athletes
+        
+        do {
+            let snapshot = try await query.getDocuments()
+            let fetchedAthletes = snapshot.documents.compactMap { try? $0.data(as: User.self) }
             
-            let query = Firestore.firestore().collection("users")
-                .whereField("trainerid", isEqualTo: trainerID)
-                .whereField("type", isEqualTo: UserType.athlete.rawValue)  // Ensure you fetch only athletes
-
-            do {
-                let snapshot = try await query.getDocuments()
-                let fetchedAthletes = snapshot.documents.compactMap { try? $0.data(as: User.self) }
-                
-                // Ensure UI updates on the main thread
-                DispatchQueue.main.async {
-                    self.athletes = fetchedAthletes
-                }
-            } catch {
-                print("Error fetching athletes: \(error.localizedDescription)")
+            // Ensure UI updates on the main thread
+            DispatchQueue.main.async {
+                self.athletes = fetchedAthletes
             }
+        } catch {
+            print("Error fetching athletes: \(error.localizedDescription)")
         }
+    }
     
     
     func signOut() {
@@ -98,14 +98,14 @@ class AuthViewModel: ObservableObject {
             self.userSession = nil
             // reset our current user data model
             self.currentUser = nil
-
+            
         } catch {
             print("DEBUG: failed to sign user out with error: \(error.localizedDescription)")
         }
     }
     
     func deleteAccount() {
-        
+        //Will be implemented
     }
     
     func fetchUser() async {

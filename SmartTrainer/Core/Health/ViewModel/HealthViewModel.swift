@@ -21,9 +21,9 @@ class HealthViewModel: ObservableObject {
     @Published var workoutSplits: [WorkoutSplit] = []
     
     private var savedDistance: Double?
-        private var savedIntensity: IntensityLevel?
-        private var savedWorkoutType: WorkoutType?
-        private var savedAthleteID: String?
+    private var savedIntensity: IntensityLevel?
+    private var savedWorkoutType: WorkoutType?
+    private var savedAthleteID: String?
     private var healthStore = HKHealthStore()
     
     // MARK: - Request HealthKit Authorization
@@ -58,9 +58,9 @@ class HealthViewModel: ObservableObject {
     func RequestWorkout(distance: Double, intensity: IntensityLevel, workoutType: WorkoutType, athleteID: String) {
         //self.fetchHealthData(workoutType: workoutType) // Automatically fetch data after authorization
         savedDistance = distance
-                savedIntensity = intensity
-                savedWorkoutType = workoutType
-                savedAthleteID = athleteID
+        savedIntensity = intensity
+        savedWorkoutType = workoutType
+        savedAthleteID = athleteID
         // Debug print
         self.fetchAge { age in
             guard let age = age else {
@@ -97,12 +97,6 @@ class HealthViewModel: ObservableObject {
             }
         }
     }
-    
-    
-    // MARK: - Fetch Health Data
-    //    func fetchHealthData(workoutType: WorkoutType) {
-    //        fetchWeight()
-    //    }
     
     // MARK: - Fetch Weight
     func fetchWeight(completion: @escaping (Double?) -> Void) {
@@ -315,19 +309,6 @@ class HealthViewModel: ObservableObject {
                         if let workoutJson = try JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],
                            let workoutSplits = workoutJson["workoutSplits"] as? [[String: Any]] {
                             self.updateWorkoutSplits(from: workoutSplits)
-                            // Iterate through each workout split and print details
-                            //                        for split in workoutSplits {
-                            //                            print("Workout Split ID: \(split["id"] ?? "")")
-                            //                            print("Workout ID: \(split["workoutId"] ?? "")")
-                            //                            print("Athlete ID: \(split["AthleteID"] ?? "")")
-                            //                            print("Distance: \(split["distance"] ?? "")")
-                            //                            print("Split Speed: \(split["splitspeed"] ?? "")")
-                            //                            print("Split Intensity: \(split["splitIntensity"] ?? "")")
-                            //                            print("Split Workout Type: \(split["splitworkouttype"] ?? "")")
-                            //                            print("Comment: \(split["comment"] ?? "")")
-                            //                            print("-------------")
-                            //
-                            //                        }
                         } else {
                             print("Error parsing content JSON")
                             self.RequestWorkout(distance: self.savedDistance!, intensity: self.savedIntensity!, workoutType: self.savedWorkoutType!, athleteID: self.savedAthleteID!)
