@@ -14,7 +14,7 @@ struct AthleteWorkoutSplitsView: View {
     var workoutId: String
     var approvingStatus: String
     @State private var workoutSplits: [WorkoutSplit] = []
-
+    
     var body: some View {
         VStack {
             if workoutSplits.isEmpty {
@@ -62,7 +62,7 @@ struct AthleteWorkoutSplitsView: View {
             UITabBar.appearance().isHidden = false
         }
     }
-
+    
     private func loadWorkoutSplits() {
         Task {
             do {
@@ -72,7 +72,7 @@ struct AthleteWorkoutSplitsView: View {
             }
         }
     }
-
+    
     private func transferToWatch() {
         // Send each workout split to the watch
         for split in workoutSplits {
