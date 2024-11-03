@@ -61,9 +61,9 @@ class DBManager: ObservableObject
         {
             if sqlite3_step(createTableStatement) == SQLITE_DONE
             {
-                //print("workout table created.")
+                print("workout table created.")
             } else {
-                //print("workout table could not be created.")
+                print("workout table could not be created.")
             }
         } else {
             print("CREATE TABLE statement could not be prepared.")
@@ -77,9 +77,9 @@ class DBManager: ObservableObject
         {
             if sqlite3_step(createTableStatement) == SQLITE_DONE
             {
-                //print("trainingsplits table created.")
+                print("trainingsplits table created.")
             } else {
-                //print("trainingsplits table could not be created.")
+                print("trainingsplits table could not be created.")
             }
         } else {
             print("CREATE TABLE statement could not be prepared.")
