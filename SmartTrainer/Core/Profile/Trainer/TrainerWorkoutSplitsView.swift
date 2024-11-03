@@ -19,7 +19,7 @@ struct TrainerWorkoutSplitsView: View {
     var onStatusUpdated: () -> Void // Closure for updating status
     @State private var editMode: [Int: Bool] = [:] // A dictionary to track which split is being edited
     @State private var editedSplits: [Int] = [] // To track edited splits
-
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -210,7 +210,7 @@ struct TrainerWorkoutSplitsView: View {
             UITabBar.appearance().isHidden = false
         }
     }
-
+    
     private func loadWorkoutSplits() {
         Task {
             do {
@@ -220,7 +220,7 @@ struct TrainerWorkoutSplitsView: View {
             }
         }
     }
-
+    
     // Function to update all edited splits when Approve or Decline button is pressed
     private func updateAllEditedSplits() async {
         for splitId in editedSplits {
@@ -235,8 +235,8 @@ struct TrainerWorkoutSplitsView: View {
         // Clear the edited splits after updating
         editedSplits.removeAll()
     }
-
-
+    
+    
     // Functions to update the workout split model and Firestore
     private func updateSplitDistance(for id: Int, newValue: Double) {
         if let index = workoutSplits.firstIndex(where: { $0.id == id }) {
@@ -247,7 +247,7 @@ struct TrainerWorkoutSplitsView: View {
             }
         }
     }
-
+    
     private func updateSplitSpeed(for id: Int, newValue: Double) {
         if let index = workoutSplits.firstIndex(where: { $0.id == id }) {
             workoutSplits[index].splitspeed = newValue
@@ -257,7 +257,7 @@ struct TrainerWorkoutSplitsView: View {
             }
         }
     }
-
+    
     private func updateSplitComment(for id: Int, newValue: String) {
         if let index = workoutSplits.firstIndex(where: { $0.id == id }) {
             workoutSplits[index].comment = newValue
@@ -267,7 +267,7 @@ struct TrainerWorkoutSplitsView: View {
             }
         }
     }
-
+    
     // Custom Decimal Formatter
     private func decimalFormatter() -> NumberFormatter {
         let formatter = NumberFormatter()

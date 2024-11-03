@@ -16,7 +16,7 @@ struct GeneratedWorkoutSplitsView: View {
     @State private var editMode: [Int: Bool] = [:] // A dictionary to track which split is being edited
     @Environment(\.presentationMode) var presentationMode // To dismiss the view
     @State private var showingAlert = false // State to control alert visibility
-
+    
     var body: some View {
         VStack {
             if healthViewModel.workoutSplits.isEmpty {
@@ -118,9 +118,9 @@ struct GeneratedWorkoutSplitsView: View {
                     .background(Color(.systemGray5))
                     .cornerRadius(8)
                 }
-
+                
                 Spacer()
-
+                
                 // Confirm Button
                 Button(action: {
                     Task {
@@ -176,7 +176,7 @@ struct GeneratedWorkoutSplitsView: View {
             UITabBar.appearance().isHidden = false
         }
     }
-
+    
     // Custom Decimal Formatter
     private func decimalFormatter() -> NumberFormatter {
         let formatter = NumberFormatter()
@@ -186,14 +186,14 @@ struct GeneratedWorkoutSplitsView: View {
         formatter.alwaysShowsDecimalSeparator = false
         return formatter
     }
-
+    
     // Functions to update the workout split model
     private func updateSplitDistance(for id: Int, newValue: Double) {
         if let index = healthViewModel.workoutSplits.firstIndex(where: { $0.id == id }) {
             healthViewModel.workoutSplits[index].distance = newValue
         }
     }
-
+    
     private func updateSplitSpeed(for id: Int, newValue: Double) {
         if let index = healthViewModel.workoutSplits.firstIndex(where: { $0.id == id }) {
             healthViewModel.workoutSplits[index].splitspeed = newValue

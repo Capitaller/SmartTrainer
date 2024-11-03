@@ -11,7 +11,7 @@ struct TrainerWorkoutsView: View {
     @StateObject private var viewModel = WorkoutViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var athleteViewModel: AuthViewModel
-
+    
     var body: some View {
         NavigationView {
             List {
@@ -26,7 +26,7 @@ struct TrainerWorkoutsView: View {
                             Text(workout.athleteName)
                                 .font(.headline)
                                 .padding(.bottom, 2)
-
+                            
                             HStack {
                                 Text(workout.date, style: .date)
                                     .font(.subheadline)
@@ -56,17 +56,17 @@ struct TrainerWorkoutsView: View {
             }
         }
     }
-
+    
     private func loadAthletesAndWorkouts() {
         guard let trainerId = authViewModel.currentUser?.id else { return }
         Task {
             do {
                 // Fetch athletes first
                 await athleteViewModel.fetchAthletes()
-
+                
                 // Clear existing workouts before fetching new ones
                 viewModel.workouts.removeAll()
-
+                
                 // Fetch workouts for each athlete
                 try await viewModel.fetchWorkoutsForAthletes(athletes: athleteViewModel.athletes)
             } catch {
@@ -74,7 +74,7 @@ struct TrainerWorkoutsView: View {
             }
         }
     }
-
+    
     func colorForApprovalState(_ state: String) -> Color {
         switch state {
         case "Approved":

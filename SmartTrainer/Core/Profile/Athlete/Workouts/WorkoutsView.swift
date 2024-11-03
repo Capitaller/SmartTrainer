@@ -11,7 +11,7 @@ import FirebaseFirestore
 struct WorkoutsView: View {
     @StateObject private var viewModel = WorkoutViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
-
+    
     var body: some View {
         NavigationView {
             List {
@@ -62,7 +62,7 @@ struct WorkoutsView: View {
             }
         }
     }
-
+    
     func colorForApprovalState(_ state: String) -> Color {
         switch state {
         case "Approved":
